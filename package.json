@@ -1,0 +1,32 @@
+{
+  "name": "reservation-system",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "node --import='tsx' src/index.ts",
+    "dev": "node --env-file=.env  --watch --import='tsx' src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.9",
+    "express": "^4.21.2",
+    "turborepo": "^0.0.1",
+    "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "@ts-rest/core": "^3.52.1",
+    "@ts-rest/express": "^3.52.1",
+    "@types/cors": "^2.8.17",
+    "cors": "^2.8.5",
+    "redis": "^4.7.0",
+    "tsx": "^4.19.3",
+    "zod": "^3.24.2"
+  }
+}
