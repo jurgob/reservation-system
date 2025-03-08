@@ -37,7 +37,7 @@ export async function createApp(){
         },
         createEvent: async ({body}) => {
             const { totalSeats , name} = body;
-            const {eventId} = await reservationClient.createEvent(totalSeats);
+            const {eventId} = await reservationClient.createEvent({totalSeats, name});
 
             return {
                 status: 201,

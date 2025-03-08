@@ -1,6 +1,6 @@
 import { initContract } from "@ts-rest/core";
 import {z} from "zod";
-import { EventId, SeatCounter, UserId } from "./types";
+import { EventId, SeatCounter, UserId,EventName } from "./types";
 const c = initContract();
 
 
@@ -25,7 +25,7 @@ export const contract = c.router({
       summary: "Create a new event",
       description: "Create a new event with a given name and total number of seats",
       body: z.object(
-        { name: z.string(), totalSeats: SeatCounter}
+        { name: EventName, totalSeats: SeatCounter}
       ),
       responses: { 
         201: z.object({ eventId: EventId }), 
