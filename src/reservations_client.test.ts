@@ -72,7 +72,7 @@ describe('Reservations Client', () => {
         await expect(secondReserveSeatPromise).rejects.toThrow();
       });
 
-      it.skip('if userA hold a seat, userB hold attemp should fail', async () => {
+      it('if userA hold a seat, userB hold attemp should fail', async () => {
         const eventId = newEvent.eventId;
         const userBId = createUserId();
         await reservationsClient.holdSeat(eventId, userAId, 1);

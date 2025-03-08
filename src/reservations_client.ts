@@ -46,12 +46,10 @@ export async function createReservationsClient(props: {redisClientInstance?: Red
     const holdSeat = async (eventId: EventId, userId: UserId, seatIndex: number) => {
         const seatKey = seatIndex.toString()
         const hashKey = eventId+":seats"
-        //  redisClient.watch(hashKey);
-        // const trans = redisClient.multi();
-        const trans = redisClient;
-        trans.hSetNX(hashKey, seatKey, userId);
-        trans.hExpire(hashKey,seatKey, seatHoldExpirationSeconds, "NX");
-        // await trans.exec();
+        const holdResult = await redisClient.hSetNX(hashKey, seatKey, userId);
+        if(!holdResult)
+            throw new Error("Seat is already held")
+        await redisClient.hExpire(hashKey,seatKey, seatHoldExpirationSeconds, "NX");
 
     }
 
