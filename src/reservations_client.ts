@@ -1,14 +1,15 @@
 import { createClient } from "redis";
-import type {EventId} from "./contract"
+import {EventId, SeatNumber} from "./contract"
 import {randomUUID} from "crypto"
 
 
 export async function createReservationsClient(){
-    const redisClient = createClient();
+    const redisClient = createClient({
+        url: process.env.REDIS_URL
+    });
     await redisClient.connect();
-    console.log(`REDIS_URL: ${process.env.REDIS_URL}`);
     
-    const createEvent = async ( totalSeats: number) => {
+    const createEvent = async ( totalSeats: SeatNumber) => {
         const eventId:EventId = `EVT-${randomUUID()}`;
         await redisClient.set(eventId, totalSeats);
         return { eventId };
@@ -16,7 +17,7 @@ export async function createReservationsClient(){
 
     const getEvent = async (eventId: EventId) => {
         const totalSeatsString = await redisClient.get(eventId);
-        const totalSeats = parseInt(totalSeatsString||"0");
+        const totalSeats = SeatNumber.parse(totalSeatsString);
         return { totalSeats };
     }
 

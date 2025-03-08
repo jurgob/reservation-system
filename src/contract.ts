@@ -4,11 +4,12 @@ const c = initContract();
 
 export const EventId = z.custom<`EVT-${ string }`>( data => z.string().startsWith("EVT-").safeParse( data ).success )
 export const UserId = z.custom<`USR-${ string }`>( data => z.string().startsWith("USR-").safeParse( data ).success )
-export const SeatNumber = z.number().int().positive().min(10).max(1000);
+export const SeatNumber = z.number().int().positive().min(10).max(1000).brand<"SeatNumber">();
 
 export type EventId = z.infer<typeof EventId>;
 export type UserId = z.infer<typeof UserId>;
 export type SeatNumber = z.infer<typeof SeatNumber>;
+
 
 const WrongRequestErrorResponse = z.object({ error: z.string() });  
 
