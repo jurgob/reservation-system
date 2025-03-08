@@ -18,6 +18,8 @@ export const contract = c.router({
     health: {
         method: "GET",
         path: "/health",
+        summary: "Health check",
+        description: "Check if the service is up and running",
         responses: { 
           201: z.object({ status:z.literal("ok") })
       },
@@ -25,6 +27,8 @@ export const contract = c.router({
     createEvent: {
       method: "POST",
       path: "/events",
+      summary: "Create a new event",
+      description: "Create a new event with a given name and total number of seats",
       body: z.object(
         { name: z.string(), totalSeats: SeatNumber}
       ),
@@ -36,6 +40,9 @@ export const contract = c.router({
     holdSeat: {
       method: "POST",
       path: "/events/:eventId/hold",
+      summary: "Hold a seat",
+      description: "Hold a seat for a user for a given event",
+      pathParams: z.object({ eventId: EventId }),
       body: z.object({ seatNumber: z.number(), userId: UserId }),
       responses: { 
         200: z.object({
