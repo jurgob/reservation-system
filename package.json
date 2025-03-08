@@ -23,9 +23,12 @@
   "dependencies": {
     "@ts-rest/core": "^3.52.1",
     "@ts-rest/express": "^3.52.1",
+    "@ts-rest/open-api": "^3.52.1",
     "@types/cors": "^2.8.17",
+    "@types/swagger-ui-express": "^4.1.8",
     "cors": "^2.8.5",
     "redis": "^4.7.0",
+    "swagger-ui-express": "^5.0.1",
     "tsx": "^4.19.3",
     "zod": "^3.24.2"
   }

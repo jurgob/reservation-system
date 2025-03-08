@@ -9,6 +9,9 @@ import cors from 'cors';
 import { createExpressEndpoints } from '@ts-rest/express';
 import { createReservationsClient } from './reservations_client';
 
+import { generateOpenApi } from '@ts-rest/open-api';
+import * as swaggerUi from 'swagger-ui-express';
+
 
 
 
@@ -81,7 +84,16 @@ export async function createApp(){
     });
 
     createExpressEndpoints(contract, router, app)
-    
+
+    const openApiDocument = generateOpenApi(contract, {
+        info: {
+            title: 'Event Reservations Seats API',
+            version: '1.0.0',
+        },
+    });
+
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDocument));
+
     return app
 
 }
