@@ -4,10 +4,11 @@ const c = initContract();
 
 export const EventId = z.custom<`EVT-${ string }`>( data => z.string().startsWith("EVT-").safeParse( data ).success )
 export const UserId = z.custom<`USR-${ string }`>( data => z.string().startsWith("USR-").safeParse( data ).success )
-
+export const SeatNumber = z.number().int().positive().min(10).max(1000);
 
 export type EventId = z.infer<typeof EventId>;
 export type UserId = z.infer<typeof UserId>;
+export type SeatNumber = z.infer<typeof SeatNumber>;
 
 const WrongRequestErrorResponse = z.object({ error: z.string() });  
 
@@ -24,7 +25,7 @@ export const contract = c.router({
       method: "POST",
       path: "/events",
       body: z.object(
-        { name: z.string(), totalSeats: z.number()}
+        { name: z.string(), totalSeats: SeatNumber}
       ),
       responses: { 
         201: z.object({ eventId: EventId }), 
@@ -34,7 +35,7 @@ export const contract = c.router({
     holdSeat: {
       method: "POST",
       path: "/events/:eventId/hold",
-      body: z.object({ seatNumber: z.number(), userId: z.string() }),
+      body: z.object({ seatNumber: z.number(), userId: UserId }),
       responses: { 
         200: z.object({
               success: z.boolean(), 
@@ -48,7 +49,7 @@ export const contract = c.router({
         path: "/events/:eventId/reserve",
         pathParams: z.object({ eventId: EventId }),
         body: z.object({ 
-        seatNumber: z.number(), 
+        seatNumber: SeatNumber, 
         userId: UserId 
     }),
         responses: { 
@@ -61,7 +62,7 @@ export const contract = c.router({
         pathParams: z.object({ eventId: EventId }),
         responses: { 
             200: z.object({ 
-                availableSeats: z.array(z.number())
+                availableSeats: z.array(SeatNumber)
             }) 
         }
     },
@@ -71,7 +72,7 @@ export const contract = c.router({
       pathParams: z.object({ eventId: EventId }),
       responses: { 
           200: z.object({ 
-            totalSeats: z.number(), 
+            totalSeats: SeatNumber, 
           }) 
       }
     },
