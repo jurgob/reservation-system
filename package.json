@@ -7,7 +7,9 @@
     "start": "node --import='tsx' src/index.ts",
     "dev": "node --env-file=.env  --watch --import='tsx' src/index.ts",
     "typecheck": "tsc --noEmit",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "vitest": "node --env-file=.env.test ./node_modules/vitest/vitest.mjs",
+    "test": "npm run vitest --  run --coverage",
+    "test:watch": "npm run vitest"
   },
   "keywords": [],
   "author": "",
@@ -16,9 +18,11 @@
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/node": "^22.13.9",
+    "@vitest/coverage-v8": "^3.0.8",
     "express": "^4.21.2",
     "turborepo": "^0.0.1",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.8"
   },
   "dependencies": {
     "@ts-rest/core": "^3.52.1",
