@@ -60,16 +60,25 @@ describe('Reservations Client', () => {
       it('should fail when reserving a seat which was not holded', async () => {
         const eventId = newEvent.eventId;
         const reservePromise = reservationsClient.reserveSeat(eventId, userAId, 1);
-        expect(reservePromise).rejects.toThrow();
+        await expect(reservePromise).rejects.toThrow();
       });
-    
+      
+      it('if userA hold a seat, userB reserveSeat attemp should fail', async () => {
+        const eventId = newEvent.eventId;
+        const userBId = createUserId();
+        await reservationsClient.holdSeat(eventId, userAId, 1);
+        const secondReserveSeatPromise = reservationsClient.reserveSeat(eventId, userBId, 1);
+
+        await expect(secondReserveSeatPromise).rejects.toThrow();
+      });
+
       it.skip('if userA hold a seat, userB hold attemp should fail', async () => {
         const eventId = newEvent.eventId;
         const userBId = createUserId();
-        await reservationsClient.reserveSeat(eventId, userAId, 1);
-        const secondReservePromise = reservationsClient.reserveSeat(eventId, userBId, 1);
+        await reservationsClient.holdSeat(eventId, userAId, 1);
+        const secondHoldSeatPromise = reservationsClient.holdSeat(eventId, userBId, 1);
 
-        expect(secondReservePromise).rejects.toThrow();
+        await expect(secondHoldSeatPromise).rejects.toThrow();
       });
 
   })
