@@ -1,5 +1,5 @@
 import { createClient,RedisClientType } from "redis";
-import {EventId, SeatNumber, EventName,UserId} from "./types"
+import {EventId, SeatCounter, EventName,UserId} from "./types"
 import {randomUUID} from "crypto"
 
 
@@ -21,7 +21,7 @@ export async function createReservationsClient(props: {redisClientInstance?: Red
 
     await redisClient.connect();
     
-    const createEvent = async ( props: {totalSeats: SeatNumber, name: EventName}) => {
+    const createEvent = async ( props: {totalSeats: SeatCounter, name: EventName}) => {
         const {totalSeats, name} = props;
         const eventId = createEventId();
         await redisClient.hSet(eventId, "totalSeats", totalSeats);
@@ -36,7 +36,7 @@ export async function createReservationsClient(props: {redisClientInstance?: Red
         
         // I could have parsed this for better correctness, but I choose an unsafe cast for performance reasons
         // correctness is up to the typesystem from the reservationClient pow, while the actual parse is done at the http layer
-        const event = await redisClient.hGetAll(eventId) as unknown as {totalSeats: SeatNumber, name: EventName}; 
+        const event = await redisClient.hGetAll(eventId) as unknown as {totalSeats: SeatCounter, name: EventName}; 
         return { 
             eventId,
             ...event 
@@ -67,7 +67,7 @@ export async function createReservationsClient(props: {redisClientInstance?: Red
 
     const getAvailableSeats = async (eventId: EventId) => {
         const totalSeatsString = await redisClient.hGet(eventId, "totalSeats");
-        const totalSeats = SeatNumber.parse(parseInt(totalSeatsString||""));
+        const totalSeats = SeatCounter.parse(parseInt(totalSeatsString||""));
         const hashKey = eventId+":seats"
         const seatsNotAvailable = await redisClient.hKeys(hashKey);
         const potentialAvailableSeatch = Array.from({"length": totalSeats}, (_,i) => `${i+1}`)

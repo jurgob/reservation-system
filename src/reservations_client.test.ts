@@ -2,7 +2,7 @@
 
 import { describe, it, expect,beforeEach } from 'vitest';
 import { createReservationsClient, createUserId, ReservationClient, Event} from './reservations_client';
-import { SeatNumber, EventName, UserId } from './types';
+import { SeatCounter, EventName, UserId } from './types';
 import { create } from 'domain';
 function sleep(seconds: number) {
     return new Promise(resolve => setTimeout(resolve, seconds * 1000));
@@ -15,7 +15,7 @@ describe('Reservations Client', () => {
   });
 
   it('should create an event', async () => {
-    const totalSeats = SeatNumber.parse(10);
+    const totalSeats = SeatCounter.parse(10);
     const name = EventName.parse('Ibiza Beach Party');
     const newEvent = await reservationsClient.createEvent({totalSeats, name});
     expect(newEvent.eventId).toBeTypeOf('string');
@@ -28,7 +28,7 @@ describe('Reservations Client', () => {
     let userAId:UserId;
     
     beforeEach(async () => {
-      const totalSeats = SeatNumber.parse(10);
+      const totalSeats = SeatCounter.parse(10);
       const name = EventName.parse('Ibiza Beach Party');
       newEvent = await reservationsClient.createEvent({totalSeats, name});
       userAId = createUserId();
@@ -96,7 +96,7 @@ describe('Reservations Client expire tests', () => {
     });
   
     it('should hold an event and unhold it after 1 second', async () => {
-      const totalSeats = SeatNumber.parse(10);
+      const totalSeats = SeatCounter.parse(10);
       const name = EventName.parse('Ibiza Beach Party');
       const userId = createUserId();
 
