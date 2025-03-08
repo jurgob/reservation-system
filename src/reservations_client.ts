@@ -1,10 +1,14 @@
 import { createClient,RedisClientType } from "redis";
-import {EventId, SeatNumber, EventName} from "./types"
+import {EventId, SeatNumber, EventName,UserId} from "./types"
 import {randomUUID} from "crypto"
 
 
 function createEventId():EventId {
     return `EVT-${randomUUID()}`;
+}
+
+export function createUserId():UserId {
+    return `USR-${randomUUID()}`;
 }
 
 const DEFAULT_SEAT_HOLD_EXPIRATION_SECONDS = 60
@@ -39,7 +43,7 @@ export async function createReservationsClient(props: {redisClientInstance?: Red
         };
     }
 
-    const holdSeat = async (eventId: EventId, userId: string, seatIndex: number) => {
+    const holdSeat = async (eventId: EventId, userId: UserId, seatIndex: number) => {
         const seatKey = seatIndex.toString()
         const hashKey = eventId+":seats"
         //  redisClient.watch(hashKey);
@@ -51,7 +55,7 @@ export async function createReservationsClient(props: {redisClientInstance?: Red
 
     }
 
-    const reserveSeat = async (eventId: EventId, userId: string, seatIndex:number) => {
+    const reserveSeat = async (eventId: EventId, userId: UserId, seatIndex:number) => {
         // const trans = redisClient.multi();
         const seatKey = seatIndex.toString()
         const hashKey = eventId+":seats"
@@ -78,3 +82,4 @@ export async function createReservationsClient(props: {redisClientInstance?: Red
 }
 
 export type ReservationClient = Awaited<ReturnType<typeof createReservationsClient>>;
+export type Event = Awaited<ReturnType<ReservationClient["createEvent"]>>;
