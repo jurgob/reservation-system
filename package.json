@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "vitest": "node --env-file=.env.test ./node_modules/vitest/vitest.mjs",
     "test": "npm run vitest --  run --coverage",
-    "test:watch": "npm run vitest"
+    "test:watch": "npm run vitest",
+    "redis:cli": "docker compose exec redis  redis-cli"
   },
   "keywords": [],
   "author": "",

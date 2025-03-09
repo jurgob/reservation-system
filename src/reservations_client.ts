@@ -7,6 +7,8 @@ function createEventId():EventId {
     return `EVT-${randomUUID()}`;
 }
 
+const HOLD_SEAT_EXPIRATION_DONOT_EXPIRE = 100 * (60 * 60 * 24 * 365); // 100 years in seconds
+
 export function createUserId():UserId {
     return `USR-${randomUUID()}`;
 }
@@ -62,7 +64,8 @@ export async function createReservationsClient(props: {redisClientInstance?: Red
         if(typeof holdSeat !== "string" ||holdSeat !== userId){
             throw new Error("Seat is not held by user")
         }
-        await redisClient.hPersist(hashKey, seatKey);
+        await redisClient.hExpire(hashKey,seatKey, HOLD_SEAT_EXPIRATION_DONOT_EXPIRE, "XX");
+        // await redisClient.hPersist(hashKey, seatKey);
 
     }
 
