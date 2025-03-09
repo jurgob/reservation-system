@@ -100,12 +100,44 @@ describe('Reservations Client', () => {
         await expect(secondHoldSeatPromise).rejects.toThrow();
       });
 
-
       it('should hold an event and unhold it after 1 second', async () => {
         const seatHoldExpirationSeconds = HoldSeatExpiration.parse(1);
         await reservationsClient.holdSeat(newEvent.eventId, userAId, 1, seatHoldExpirationSeconds);
         await sleep(seatHoldExpirationSeconds + 1);
         const availableSeats = await reservationsClient.getAvailableSeats(newEvent.eventId);
+        expect(availableSeats).toEqual(["1","2","3","4","5","6","7","8","9","10"]);
+      });
+
+      it('if user a hold a seat and user b fail to hold the same seat, the hold should expire regularry', async () => {
+        const seatHoldExpirationSeconds = HoldSeatExpiration.parse(3);
+        const eventId = newEvent.eventId;
+        const userBId = createUserId();
+        // userA holds seat 1
+        await reservationsClient.holdSeat(eventId, userAId, 1, seatHoldExpirationSeconds);
+        // userB try to holod holds seat 1 and fail
+        const fail = await reservationsClient.holdSeat(eventId, userBId, 1, seatHoldExpirationSeconds).catch(e => "userbfail");
+        expect(fail).toBe("userbfail");
+
+        // userA seat should be available after 3 seconds
+        await sleep(seatHoldExpirationSeconds + 1);
+        const availableSeats = await reservationsClient.getAvailableSeats(eventId);
+        expect(availableSeats).toEqual(["1","2","3","4","5","6","7","8","9","10"]);
+      });
+
+      it('if user a hold+reserve a seat and user b fail to hold the same seat, the hold should expire regularry', async () => {
+        const seatHoldExpirationSeconds = HoldSeatExpiration.parse(3);
+        const eventId = newEvent.eventId;
+        const userBId = createUserId();
+        // userA holds and researve seat 1
+        await reservationsClient.holdSeat(eventId, userAId, 1, seatHoldExpirationSeconds);
+        await reservationsClient.reserveSeat(eventId, userAId, 1);
+        // userB try to holod holds seat 1 and fail
+        const fail = await reservationsClient.holdSeat(eventId, userBId, 1, seatHoldExpirationSeconds).catch(e => "userbfail");
+        expect(fail).toBe("userbfail");
+
+        // userA seat should be available after 3 seconds
+        await sleep(seatHoldExpirationSeconds + 1);
+        const availableSeats = await reservationsClient.getAvailableSeats(eventId);
         expect(availableSeats).toEqual(["1","2","3","4","5","6","7","8","9","10"]);
       });
   })
