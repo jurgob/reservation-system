@@ -1,5 +1,5 @@
 import { createClient,RedisClientType } from "redis";
-import {EventId, SeatCounter, EventName,UserId} from "./types"
+import {EventId, SeatCounter, EventName,UserId, HoldSeatExpiration, HOLD_SEAT_EXPIRATION_DEFAULT} from "./types"
 import {randomUUID} from "crypto"
 
 
@@ -11,10 +11,8 @@ export function createUserId():UserId {
     return `USR-${randomUUID()}`;
 }
 
-const DEFAULT_SEAT_HOLD_EXPIRATION_SECONDS = 60
+export async function createReservationsClient(props: {redisClientInstance?: RedisClientType} = {}) {
 
-export async function createReservationsClient(props: {redisClientInstance?: RedisClientType, seatHoldExpirationSeconds?: number} = {}) {
-    const seatHoldExpirationSeconds = props.seatHoldExpirationSeconds || DEFAULT_SEAT_HOLD_EXPIRATION_SECONDS;
     const redisClient = createClient({
         url: process.env.REDIS_URL
     });
@@ -43,13 +41,14 @@ export async function createReservationsClient(props: {redisClientInstance?: Red
         };
     }
 
-    const holdSeat = async (eventId: EventId, userId: UserId, seatIndex: number) => {
+    const holdSeat = async (eventId: EventId, userId: UserId, seatIndex: number, holdSeatExpiration?:HoldSeatExpiration|undefined) => {
+        holdSeatExpiration = HoldSeatExpiration.parse(holdSeatExpiration);
         const seatKey = seatIndex.toString()
         const hashKey = eventId+":seats"
         const holdResult = await redisClient.hSetNX(hashKey, seatKey, userId);
         if(!holdResult)
             throw new Error("Seat is already held")
-        await redisClient.hExpire(hashKey,seatKey, seatHoldExpirationSeconds, "NX");
+        await redisClient.hExpire(hashKey,seatKey, holdSeatExpiration, "NX");
 
     }
 
