@@ -45,6 +45,8 @@ export const contract = c.router({
     reserveSeat: {
         method: "POST",
         path: "/events/:eventId/reserve",
+        summary: "Reserve a seat",
+        description: "Reserve a seat for a user for a given event",
         pathParams: z.object({ eventId: EventId }),
         body: z.object({ 
         seatNumber: z.number(), 
@@ -57,6 +59,8 @@ export const contract = c.router({
     listAvailableSeats: {
         method: "GET",
         path: "/events/:eventId/seats",
+        summary: "List available seats",
+        description: "List available seats for a given event",
         pathParams: z.object({ eventId: EventId }),
         responses: { 
             200: z.object({ 
@@ -67,10 +71,13 @@ export const contract = c.router({
     getEvent: {
       method: "GET",
       path: "/events/:eventId",
+      summary: "Get an event",
+      description: "Get an event by its id",
       pathParams: z.object({ eventId: EventId }),
       responses: { 
           200: z.object({ 
             totalSeats: SeatCounter, 
+            name: EventName
           }) 
       }
     },

@@ -45,11 +45,12 @@ export async function createApp(){
         },
         getEvent: async ({params}) => {
             const { eventId } = params;
-            const { totalSeats } = await reservationClient.getEvent(eventId);
+            const { totalSeats,name } = await reservationClient.getEvent(eventId);
             return {
                 status: 200,
                 body: {
                     totalSeats,
+                    name
                 },
             };
         },
