@@ -60,6 +60,11 @@ you can do this in 2 ways:
 `http://localhost:3000/api-docs` -> api specs
 
 
+# URLS productions
+
+this app is deployed in fly.io and redislabs (I'm using the free tiers, so it may not be super performante):
+
+https://reservation-system.fly.dev/api-docs
 
 
 # DESIGN:
