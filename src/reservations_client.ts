@@ -1,7 +1,7 @@
 import { createClient,RedisClientType } from "redis";
 import {EventId, SeatCounter, EventName,UserId, HoldSeatExpiration, HOLD_SEAT_EXPIRATION_DEFAULT} from "./types"
 import {randomUUID} from "crypto"
-
+import {env} from "./env"
 
 function createEventId():EventId {
     return `EVT-${randomUUID()}`;
@@ -16,7 +16,7 @@ export function createUserId():UserId {
 export async function createReservationsClient(props: {redisClientInstance?: RedisClientType} = {}) {
 
     const redisClient = createClient({
-        url: process.env.REDIS_URL
+        url: env.REDIS_URL
     });
 
     await redisClient.connect();

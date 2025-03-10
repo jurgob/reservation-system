@@ -52,7 +52,7 @@ export const contract = c.router({
         path: "/events/:eventId/reserve",
         pathParams: z.object({ eventId: EventId }),
         body: z.object({ 
-        seatNumber: SeatCounter, 
+        seatNumber: z.number(), 
         userId: UserId 
     }),
         responses: { 
