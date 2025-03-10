@@ -1,4 +1,9 @@
-# HOW TO RUN IT
+[![Codecov](https://codecov.io/gh/jurgob/reservation-system/branch/main/graph/badge.svg)](https://codecov.io/gh/jurgob/reservation-system)
+
+
+# RESERVATION SYSTEM
+
+## HOW TO RUN IT
 
 ## prerequisites
 
