@@ -12,8 +12,8 @@
     "dev:server": "npm run redis:waitfor && node --env-file=.env  --watch --import='tsx' src/index.ts",
     "typecheck": "tsc --noEmit",
     "vitest": "node --env-file=.env.test ./node_modules/vitest/vitest.mjs",
-    "test:integration:dev": "npm run redis:waitfor && npm run vitest --  run integration.test.ts --coverage",
-    "test:integration": "concurrently -k -s first 'npm run dev:compose' 'npm run test:integration:dev'",
+    "test:integration:dev": "npm run vitest --  run integration.test.ts --coverage",
+    "test:integration": "concurrently -k -s first 'npm run dev:compose' 'npm run redis:waitfor && npm run test:integration:dev'",
     "test:watch": "npm run vitest",
     "redis:cli": "docker compose exec redis  redis-cli",
     "dev:compose": "docker compose up"
