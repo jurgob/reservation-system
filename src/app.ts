@@ -12,9 +12,6 @@ import { createReservationsClient } from './reservations_client';
 import { generateOpenApi } from '@ts-rest/open-api';
 import * as swaggerUi from 'swagger-ui-express';
 
-
-
-
 export async function createApp(){
     const app = express();
 
@@ -29,7 +26,7 @@ export async function createApp(){
     const router = s.router(contract, {
         health: async () => {
             return {
-                status: 201,
+                status: 200,
                 body: {
                     status: "ok",
                 },
@@ -58,7 +55,7 @@ export async function createApp(){
         },
         holdSeat: async () => {
             return {
-                status: 200,
+                status: 201,
                 body: {
                     success: true,
                     holdExpiresAt: "string",
@@ -67,7 +64,7 @@ export async function createApp(){
         },
         reserveSeat: async () => {
             return {
-                status: 200,
+                status: 201,
                 body: {
                     success: true,
                 },
@@ -97,3 +94,6 @@ export async function createApp(){
     return app
 
 }
+
+export type ApiApp = ReturnType<typeof createApp>;
+export type ApiServer = ReturnType<Awaited<ApiApp>['listen']>
