@@ -60,9 +60,27 @@ you can do this in 2 ways:
 
 # DESIGN:
 
-# DB DESIGN DECISIONS:
-- I use redis hashmap and expire data. 
--  
 
-# CODING STYLE:
+
+# REDIS IMPLEMENTATION KEY FACTORS: 
+
+given the following facts: 
+- redis does not gurantee transactability among different operations, unless we don't use transactions. 
+- inside a transaction, every operation is executed, even if the previous one fail
+
+this was the implementation: 
+1. `holdSeat()` use  a redis `transaction` to execute `hSetNX(hashKey, seatKey, userId)` and `hExpire(hashKey,seatKey, holdSeatExpiration, "NX")`. 
+  - using the transaction will guarantee that that seat is locked for the entire transation
+  - using hsetNX and hExpire with NX guarantee that seat is not reassigned if it is already assigned. 
+
+2. `reserveSeat()` use `hGet(hashKey, seatKey)` and `hExpire(hashKey,seatKey, HOLD_SEAT_EXPIRATION_DONOT_EXPIRE, "XX")`, between those 2 operation I chack if the seat is assigned to the current user. 
+  - because of the check I need to do in the middle, I can't do this as a transaction, but this  should not be a problem in terms of correctnss,  given the fact that you need to execute an holdSeat before doing the reservation
+  - I use `hExpire` to 100 years rather the `persist` to avoid some edge case (see the test `if user a hold a seat and user b fail to hold the same seat, the hold should expire regulary`)
+  
+
+
+# CODING DECISIONS:
 - I use zod and zod based tools to enforce correcness via the typesystem as much as possible
+- I tent to validate with zod all the data commiong from IO (http calls, redis thing), with some exeption for redis due to performance tradedoff (I'm assuming this app will be the only one writing on redis)
+- for validating the http request and generate the openapi spec, I use ts-rest (https://ts-rest.com/)
+
