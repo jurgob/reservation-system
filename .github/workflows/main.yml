@@ -27,5 +27,5 @@ jobs:
       - name: Run tests
         run: npm test
 
-    #   - name: Check Docker Compose version
-    #     run: docker compose version
+      - name: Check Docker Compose version
+        run: docker compose version
