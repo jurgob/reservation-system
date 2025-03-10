@@ -142,6 +142,8 @@ describe('Reservations Client', () => {
         await sleep(seatHoldExpirationUserBSeconds + 1);
         const availableSeats = await reservationsClient.getAvailableSeats(eventId);
         expect(availableSeats).toEqual(["2","3","4","5","6","7","8","9","10"]);
+
+        expect(reservationsClient.getEventSeat(eventId, 1)).resolves.toBe(userAId);
       });
   })
 });

@@ -68,6 +68,13 @@ export async function createReservationsClient(props: {redisClientInstance?: Red
 
     }
 
+    const getEventSeat = async (eventId: EventId, seatIndex:number) => {
+        const seatKey = seatIndex.toString()
+        const hashKey = eventId+":seats"
+        const userId = await redisClient.hGet(hashKey, seatKey);
+        return userId as UserId;// I could have parsed this for better correctness, but I choose an unsafe cast for performance reasons
+    }
+
     const getAvailableSeats = async (eventId: EventId) => {
         const totalSeatsString = await redisClient.hGet(eventId, "totalSeats");
         const totalSeats = SeatCounter.parse(parseInt(totalSeatsString||""));
@@ -78,7 +85,7 @@ export async function createReservationsClient(props: {redisClientInstance?: Red
         
     }
 
-    return { createEvent,getEvent,holdSeat,reserveSeat ,getAvailableSeats};
+    return { createEvent,getEvent,holdSeat,reserveSeat ,getAvailableSeats,getEventSeat};
 
 }
 
