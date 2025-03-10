@@ -3,13 +3,20 @@
   "version": "1.0.0",
   "main": "src/index.ts",
   "type": "module",
+  "packageManager": "npm@10.9.2",
   "scripts": {
     "start": "node --import='tsx' src/index.ts",
-    "dev": "node --env-file=.env  --watch --import='tsx' src/index.ts",
+    "dev": "turbo dev:compose dev:server",
+    "test": "turbo test:integration",
+    "redis:waitfor": "wait-on 'tcp:localhost:6379'",
+    "dev:server": "npm run redis:waitfor && node --env-file=.env  --watch --import='tsx' src/index.ts",
     "typecheck": "tsc --noEmit",
     "vitest": "node --env-file=.env.test ./node_modules/vitest/vitest.mjs",
-    "test": "npm run vitest --  run --coverage",
-    "test:watch": "npm run vitest"
+    "test:integration:dev": "npm run redis:waitfor && npm run vitest --  run integration.test.ts --coverage",
+    "test:integration": "concurrently -k -s first 'npm run dev:compose' 'npm run test:integration:dev'",
+    "test:watch": "npm run vitest",
+    "redis:cli": "docker compose exec redis  redis-cli",
+    "dev:compose": "docker compose up"
   },
   "keywords": [],
   "author": "",
@@ -19,10 +26,13 @@
     "@types/express": "^5.0.0",
     "@types/node": "^22.13.9",
     "@vitest/coverage-v8": "^3.0.8",
+    "concurrently": "^9.1.2",
     "express": "^4.21.2",
+    "turbo": "^2.4.4",
     "turborepo": "^0.0.1",
     "typescript": "^5.8.2",
-    "vitest": "^3.0.8"
+    "vitest": "^3.0.8",
+    "wait-on": "^8.0.2"
   },
   "dependencies": {
     "@ts-rest/core": "^3.52.1",
