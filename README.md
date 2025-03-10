@@ -3,6 +3,9 @@
 
 # RESERVATION SYSTEM
 
+This project is a reservation system designed to manage seat reservations efficiently. It leverages Redis for handling seat holds and reservations with a focus on ensuring data consistency and performance. The system is currently deployed on fly.io and redislabs, it can be accessed at [Reservation System API Docs](https://reservation-system.fly.dev/api-docs).
+
+
 ## HOW TO RUN IT
 
 ## prerequisites
