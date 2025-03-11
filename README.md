@@ -5,6 +5,8 @@
 
 This project is a reservation system designed to manage seat reservations efficiently. It leverages Redis for handling seat holds and reservations with a focus on ensuring data consistency and performance. The system is currently deployed on fly.io and redislabs, it can be accessed at [Reservation System API Docs](https://reservation-system.fly.dev/api-docs).
 
+The [test coverage is available on codecov ](https://app.codecov.io/gh/jurgob/reservation-system). There/s a simple ci/cd based on github actions which consist in some  [test, typecheck and code coverage publishing](https://github.com/jurgob/reservation-system/blob/main/.github/workflows/main.yml) and a [fly.io deply script](https://github.com/jurgob/reservation-system/blob/main/.github/workflows/fly-deploy.yml).
+
 
 ## HOW TO RUN IT
 
@@ -89,7 +91,7 @@ this was the implementation:
   - using the transaction will guarantee that that seat is locked for the entire transation
   - using hsetNX and hExpire with NX guarantee that seat is not reassigned if it is already assigned. 
 
-2. `reserveSeat()` use `hGet(hashKey, seatKey)` and `hExpire(hashKey,seatKey, HOLD_SEAT_EXPIRATION_DONOT_EXPIRE, "XX")`, between those 2 operation I chack if the seat is assigned to the current user. 
+2. `reserveSeat()` use `hGet(hashKey, seatKey)` and `hExpire(hashKey,seatKey, HOLD_SEAT_EXPIRATION_DONOT_EXPIRE, "XX")`, between those 2 operation I check if the seat is assigned to the current user. 
   - because of the check I need to do in the middle, I can't do this as a transaction.  Given the fact that you need to execute an holdSeat before doing the reservation, this will make really unlikely that something would happen in the middle. 
   - e.g: a use case that could happen right now is that the in the time window between the `reserveSeat - hGet` and `reservSeat - hExpire`, the ttl setted in the holdSeat() woudl expire and a different user hould holdThe Seat. 
   - I use `hExpire` to 100 years rather the `persist` to avoid some edge case (see the test `if user a hold a seat and user b fail to hold the same seat, the hold should expire regulary`)

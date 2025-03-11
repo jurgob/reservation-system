@@ -13,7 +13,7 @@ export function createUserId():UserId {
     return `USR-${randomUUID()}`;
 }
 
-export async function createReservationsClient(props: {redisClientInstance?: RedisClientType} = {}) {
+export async function createReservationsClient(props: {redisClientInstance?: RedisClientType, userMaxSeats: number} = {userMaxSeats: 10}) {
 
     const redisClient = createClient({
         url: env.REDIS_URL
@@ -47,9 +47,14 @@ export async function createReservationsClient(props: {redisClientInstance?: Red
         holdSeatExpiration = HoldSeatExpiration.parse(holdSeatExpiration);
         const seatKey = seatIndex.toString()
         const hashKey = eventId+":seats"
+        const hashKeyUserSeat = eventId+":userseats"
+        const userSeats = await redisClient.hGet(hashKeyUserSeat, userId);
+
         const transaction = redisClient.multi();
         transaction.hSetNX(hashKey, seatKey, userId);
         transaction.hExpire(hashKey,seatKey, holdSeatExpiration, "NX");
+        transaction.hSetNX(hashKeyUserSeat, userId,seatKey);
+        transaction.hExpire(hashKeyUserSeat,userId, holdSeatExpiration, "NX");
         const transactionResult =  await transaction.exec();
         const holdResult =  transactionResult[0];
         if(!holdResult)
