@@ -110,6 +110,7 @@ those are some implementation points worth to mention:
 
     therefore the implemantaion adopted was the third one
 
+5. There's the ability of refresh the seat hold. this was implmented using the `hExpire` with the `GT` option. the only way this fail is if the ttl is setted to 100 year.
 
   
 

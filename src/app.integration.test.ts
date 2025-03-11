@@ -11,7 +11,6 @@ describe('APP http endpoint', () => {
     
     beforeAll(async () => {
         mockServer = (await createApp()).listen(0);
-        console.log("created")
         const port = (mockServer.address() as AddressInfo)?.port;
         const address = `http://localhost:${port}`;
         client = createClient({
@@ -40,7 +39,6 @@ describe('APP http endpoint', () => {
         if(newEvent.status === 201){
             newEvent.body
         }
-        
         expect(newEvent.status).toBe(201);
     })
 
@@ -77,13 +75,23 @@ describe('APP http endpoint', () => {
 
         it('should be able to hold and researve a seat', async () => {
             const userId = createUserId();
-            const seatNumber = 1;
+            const seatNumber = 2;
             const holdSeatResponse = await client.holdSeat({params:{eventId},body:{seatNumber,userId}});
             if(holdSeatResponse.status !== 201){
                 throw new Error("Hold seat failed")
             }
             const reserveSeatResponse = await client.reserveSeat({params:{eventId},body:{seatNumber,userId}});
             expect(reserveSeatResponse.status).toBe(201);
+        })
+
+        it('should be able to hold and refresh', async () => {
+            const userId = createUserId();
+            const seatNumber = 3;
+            const holdSeatResponse = await client.holdSeat({params:{eventId},body:{seatNumber,userId}});
+            const refreshHoldSeatResponse = await client.holdSeat({params:{eventId},body:{seatNumber,userId,refresh:true}});
+            
+            expect(holdSeatResponse.status).toBe(201);
+            expect(refreshHoldSeatResponse.status).toBe(201);
         })
  
     });
