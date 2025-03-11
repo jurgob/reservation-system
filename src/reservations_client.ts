@@ -70,6 +70,21 @@ export async function createReservationsClient(props: {redisClientInstance?: Red
             throw new Error("Seat is already held")
     }
 
+    const refreshHoldSeat = async (eventId: EventId, userId: UserId, seatIndex: number, holdSeatExpiration?:HoldSeatExpiration|undefined) => {
+        holdSeatExpiration = HoldSeatExpiration.parse(holdSeatExpiration);
+        const seatKey = seatIndex.toString()
+        const hashKey = eventId+":seats"
+        const holdSeat = await redisClient.hGet(hashKey, seatKey);
+        if(typeof holdSeat !== "string" ||holdSeat !== userId){
+            throw new Error("Seat is not held by user")
+        }
+        
+        const [expireResult] = await redisClient.hExpire(hashKey,seatKey, holdSeatExpiration, "GT");
+        if(expireResult === 0){
+            throw new Error("Seat has already expired")
+        }
+    }
+
     const reserveSeat = async (eventId: EventId, userId: UserId, seatIndex:number) => {
         const seatKey = seatIndex.toString()
         const hashKey = eventId+":seats"
@@ -99,7 +114,7 @@ export async function createReservationsClient(props: {redisClientInstance?: Red
         
     }
 
-    return { createEvent,getEvent,holdSeat,reserveSeat ,getAvailableSeats,getEventSeat};
+    return { createEvent,getEvent,holdSeat,reserveSeat ,getAvailableSeats,getEventSeat,refreshHoldSeat};
 
 }
 
