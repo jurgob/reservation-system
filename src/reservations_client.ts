@@ -52,7 +52,14 @@ export async function createReservationsClient(props: {redisClientInstance?: Red
           2. inside the transation, count the keys that have the user id value -> this is the more correct, but the less performant (the transaction will block the hash for more time)
           3. do like the point 2, but before the transaction -> this is the middle ground, is not an issue give that the hash can have no more then 1000 keys, also in some edge case the user could be able to require more then n seat, but I thing is the best trade off in this case
         */
+        
+        const hash = await redisClient.hGetAll(hashKey);
+        const userSeatsCount = Object.values(hash).filter(value => value === userId).length;
 
+        if((userSeatsCount+1) > props.userMaxSeats){
+            throw new Error("User has already the maximum number of seats")
+        }
+            
 
         const transaction = redisClient.multi();
         transaction.hSetNX(hashKey, seatKey, userId);
