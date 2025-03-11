@@ -86,7 +86,7 @@ given the following facts:
 - Redis does not guarantee atomicity across multiple commands unless you use transactions. All commands in a transaction are serialized and executed sequentially. A request sent by another client will never be served in the middle of the execution of a Redis transaction (Redis Transactions Documentation).
 - Inside a transaction, every operation is executed, even if a previous operation fails (i.e., Redis transactions do not guarantee rollback).
 
-this was the implementation: 
+those are some implementation points worth to mention: 
 1. `holdSeat()` use  a redis `transaction` to execute `hSetNX(hashKey, seatKey, userId)` and `hExpire(hashKey,seatKey, holdSeatExpiration, "NX")`. 
   - using the transaction will guarantee that that seat is locked for the entire transation
   - using hsetNX and hExpire with NX guarantee that seat is not reassigned if it is already assigned. 
@@ -98,11 +98,17 @@ this was the implementation:
 
   nodte: A different approach to implement the reserveSeat method is to make it as a transaction and sent a luascript.
 
-2. `reserveSeat()` uses `hGet(hashKey, seatKey)` and `hExpire(hashKey, seatKey, HOLD_SEAT_EXPIRATION_DONOT_EXPIRE, "XX")`. Between these two operations, I check if the seat is assigned to the current user.
+3. `reserveSeat()` uses `hGet(hashKey, seatKey)` and `hExpire(hashKey, seatKey, HOLD_SEAT_EXPIRATION_DONOT_EXPIRE, "XX")`. Between these two operations, I check if the seat is assigned to the current user.
    - Due to the need for the check in the middle, this cannot be done as a transaction. Given that you must execute `holdSeat` before attempting the reservation, it makes it highly unlikely that anything would happen in the middle.
    - For example, a potential issue could occur in the time window between `reserveSeat - hGet` and `reserveSeat - hExpire`. If the TTL set in `holdSeat()` expires, a different user could take the seat. given the extreme unlikeness of this scenario, I didn't managed it. **Note**: An alternative approach for implementing the `reserveSeat` method could be to treat it as a transaction and use a Lua script.
    - A much more likely edge case would be a user trying to hold a seat already assigned. Given the nature of the transactions, I've use `hExpire` with a 100-year expiration rather than using `persist` to allow `holdSeat() -hSetNX`  to act as a lock (e.g., see the test: "if user a hold+reserve a seat and user b fail to hold the same seat, the seat should be assinged").
 
+4. every user can have a limited ammount of seat at the same event, there are 3 possible way to limit a user to have n max seats.
+    1. use a separate hash per user -> this is more performante but it will require more memory
+    2. inside the transation, count the keys that have the user id value -> this is the more correct, but the less performant (the transaction will block the hash for more time)
+    3. do like the point 2, but before the transaction -> this is the middle ground, is not an issue give that the hash can have no more then 1000 keys, also in some edge case the user could be able to require more then n seat, but I think is the best trade off in this case
+
+    therefore the implemantaion adopted was the third one
 
 
   
