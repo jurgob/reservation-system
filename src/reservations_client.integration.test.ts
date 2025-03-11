@@ -21,10 +21,16 @@ describe('Reservations Client max user seat limit per event ', () => {
 
   });
 
-  it.only('should fail to create  a different user ', async () => {
-
+  it('should fail to create  a different user ', async () => {
     await reservationsClient.holdSeat(newEvent.eventId, userAId, 1);
     await expect(reservationsClient.holdSeat(newEvent.eventId, userAId, 2)).rejects.toThrow();
+  });
+
+  it('should fail to create  a different user, the seats list should be correct ', async () => {
+    await reservationsClient.holdSeat(newEvent.eventId, userAId, 1);
+    await reservationsClient.holdSeat(newEvent.eventId, userAId, 2).catch(e => "error");
+    const availableSeats = await reservationsClient.getAvailableSeats(newEvent.eventId);
+    expect(availableSeats).toEqual(["2","3","4","5","6","7","8","9","10"]);
   });
 
 });
