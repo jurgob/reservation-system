@@ -21,16 +21,25 @@ describe('Reservations Client max user seat limit per event ', () => {
 
   });
 
-  it('should fail to create  a different user ', async () => {
+  it('should fail to hold 2 seat for the same user ', async () => {
     await reservationsClient.holdSeat(newEvent.eventId, userAId, 1);
     await expect(reservationsClient.holdSeat(newEvent.eventId, userAId, 2)).rejects.toThrow();
   });
 
-  it('should fail to create  a different user, the seats list should be correct ', async () => {
+  it('should fail to hold 2 seat for the same user, the seats list should be correct ', async () => {
     await reservationsClient.holdSeat(newEvent.eventId, userAId, 1);
     await reservationsClient.holdSeat(newEvent.eventId, userAId, 2).catch(e => "error");
     const availableSeats = await reservationsClient.getAvailableSeats(newEvent.eventId);
     expect(availableSeats).toEqual(["2","3","4","5","6","7","8","9","10"]);
+  });
+
+  it('should fail to hold 2 seat for the same user, a differennt user should be able to book the seat,  the seats list should be correct ', async () => {
+    const userBId = createUserId();
+    await reservationsClient.holdSeat(newEvent.eventId, userAId, 1);
+    await reservationsClient.holdSeat(newEvent.eventId, userAId, 2).catch(e => "error");
+    await reservationsClient.holdSeat(newEvent.eventId, userBId, 2);
+    const availableSeats = await reservationsClient.getAvailableSeats(newEvent.eventId);
+    expect(availableSeats).toEqual(["3","4","5","6","7","8","9","10"]);
   });
 
 });
