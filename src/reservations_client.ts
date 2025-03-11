@@ -47,6 +47,12 @@ export async function createReservationsClient(props: {redisClientInstance?: Red
         holdSeatExpiration = HoldSeatExpiration.parse(holdSeatExpiration);
         const seatKey = seatIndex.toString()
         const hashKey = eventId+":seats"
+        /* there are 3 possible way to limit a user to have n max seats.
+          1. use a separate hash per user -> this is more performante but it will require more memory
+          2. inside the transation, count the keys that have the user id value -> this is the more correct, but the less performant (the transaction will block the hash for more time)
+          3. do like the point 2, but before the transaction -> this is the middle ground, is not an issue give that the hash can have no more then 1000 keys, also in some edge case the user could be able to require more then n seat, but I thing is the best trade off in this case
+        */
+
 
         const transaction = redisClient.multi();
         transaction.hSetNX(hashKey, seatKey, userId);
