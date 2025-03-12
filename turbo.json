@@ -13,9 +13,7 @@
         "cache": false,
         "persistent": true
       },
-      "test:integration": {
-        "cache": false,
-        "persistent": true
-      }
+      "test:integration": {}
+
     }
   }
