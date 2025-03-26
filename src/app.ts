@@ -11,7 +11,6 @@ import { createReservationsClient } from './reservations_client';
 
 import { generateOpenApi } from '@ts-rest/open-api';
 import * as swaggerUi from 'swagger-ui-express';
-import { C } from "vitest/dist/chunks/reporters.66aFHiyX";
 
 function errorResponse(e: unknown){
     return {
@@ -101,8 +100,6 @@ export async function createApp(){
             }catch(e){
                 return errorResponse(e);
              }
-
-
             return {
                 status: 201,
                 body: {
@@ -113,7 +110,7 @@ export async function createApp(){
         listAvailableSeats: async ({params}) => {
             const { eventId } = params
             try{
-                await reservationClient.getAvailableSeats(eventId);
+                const availableSeats = await reservationClient.getAvailableSeats(eventId);
                 return {
                     status: 200,
                     body: {
