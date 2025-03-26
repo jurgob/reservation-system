@@ -4,6 +4,28 @@ import { it, describe,expect,beforeAll, afterAll } from 'vitest';
 import { AddressInfo } from 'node:net';
 import { EventId } from './types';
 import { createUserId } from './reservations_client';
+import axios from 'axios';
+
+
+describe(`APP http endpoint untyped client`, () => {
+    let mockServer: ApiServer;
+    let address: string
+    
+    beforeAll(async () => {
+        mockServer = (await createApp()).listen(0);
+        const port = (mockServer.address() as AddressInfo)?.port;
+        address = `http://localhost:${port}`;
+    });
+
+    it('not existing url should return 4xx', async () => {
+        const errorResponse = await axios.get(`${address}/not-existing-url`).catch(e => e.response);
+        expect(errorResponse.status).toBe(404);
+    });
+
+    afterAll(async () => {
+        await mockServer.close();
+    });  
+})
 
 describe('APP http endpoint', () => {
     let client: ApiClient;
