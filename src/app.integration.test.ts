@@ -22,6 +22,11 @@ describe(`APP http endpoint untyped client`, () => {
         expect(errorResponse.status).toBe(404);
     });
 
+    it('a wrong request should return 400', async () => {
+        const errorResponse = await axios.post(`${address}/events`,{}).catch(e => e.response);
+        expect(errorResponse.status).toBe(400);
+    });
+
     afterAll(async () => {
         await mockServer.close();
     });  
@@ -62,6 +67,16 @@ describe('APP http endpoint', () => {
             newEvent.body
         }
         expect(newEvent.status).toBe(201);
+    })
+    
+    it('hold a seat on a non-existing event should return 403', async () => {
+        const totalSeats = 10;
+        const name = 'Ibiza Beach Party';
+        const eventId = `EVT-not-existing`;
+        const userId = createUserId();
+        const holdSeatResponse = await client.holdSeat({params:{eventId},body:{seatNumber:1,userId}});
+        
+        expect(holdSeatResponse.status).toBe(403);
     })
 
     describe('Given an Event', () => {

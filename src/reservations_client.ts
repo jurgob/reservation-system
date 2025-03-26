@@ -2,8 +2,9 @@ import { createClient,RedisClientType } from "redis";
 import {EventId, SeatCounter, EventName,UserId, HoldSeatExpiration, SeatNumber} from "./types"
 import {randomUUID} from "crypto"
 import {env} from "./env"
+import { get } from "http";
 
-function createEventId():EventId {
+export function createEventId():EventId {
     return `EVT-${randomUUID()}`;
 }
 
@@ -33,6 +34,9 @@ export async function createReservationsClient(props: {redisClientInstance?: Red
 
     const getEvent = async (eventId: EventId) => {
         const totalSeats = await redisClient.hGet(eventId, "totalSeats");
+        if(!totalSeats){
+            throw new Error("Event not found")
+        }
         
         // I could have parsed this for better correctness, but I choose an unsafe cast for performance reasons
         // correctness is up to the typesystem from the reservationClient pow, while the actual parse is done at the http layer
@@ -47,6 +51,7 @@ export async function createReservationsClient(props: {redisClientInstance?: Red
         holdSeatExpiration = HoldSeatExpiration.parse(holdSeatExpiration);
         const seatKey = seatIndex.toString()
         const hashKey = eventId+":seats"
+        await getEvent(eventId);
         /* there are 3 possible way to limit a user to have n max seats.
           1. use a separate hash per user -> this is more performante but it will require more memory
           2. inside the transation, count the keys that have the user id value -> this is the more correct, but the less performant (the transaction will block the hash for more time)

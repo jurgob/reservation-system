@@ -17,7 +17,8 @@
     "test:watch": "npm run vitest",
     "redis:cli": "docker compose exec redis  redis-cli",
     "dev:compose": "docker compose up",
-    "deploy": "fly deploy"
+    "deploy": "fly deploy",
+    "coverage": "npx http-server coverage"
   },
   "keywords": [],
   "author": "",

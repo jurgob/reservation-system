@@ -1,7 +1,7 @@
 
 
 import { describe, it, expect,beforeEach } from 'vitest';
-import { createReservationsClient, createUserId, ReservationClient, Event} from './reservations_client';
+import { createReservationsClient, createUserId,createEventId, ReservationClient, Event} from './reservations_client';
 import { SeatCounter, EventName, UserId, HoldSeatExpiration ,SeatNumber} from './types';
 function sleep(seconds: number) {
     return new Promise(resolve => setTimeout(resolve, seconds * 1000));
@@ -57,6 +57,19 @@ describe('Reservations Client', () => {
     const newEvent = await reservationsClient.createEvent({totalSeats, name});
     expect(newEvent.eventId).toBeTypeOf('string');
     expect(newEvent.eventId.startsWith('EVT-')).toBe(true); 
+  });
+  it('getEvent should fail retriving a not-existing event', async () => {
+    const userAId = createUserId();
+    const notExistingEventId = createEventId();
+    const holdSeatPromise = reservationsClient.getEvent(notExistingEventId);
+    await expect(holdSeatPromise).rejects.toThrow(); ;
+  });
+  
+  it('should fail to hold a set to a not-existing event', async () => {
+    const userAId = createUserId();
+    const notExistingEventId = createEventId();
+    const holdSeatPromise = reservationsClient.holdSeat(notExistingEventId, userAId, SeatNumber.parse(1));
+    await expect(holdSeatPromise).rejects.toThrow(); ;
   });
 
   describe('Given an event and a userA', () => {
