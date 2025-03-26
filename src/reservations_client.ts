@@ -1,5 +1,5 @@
 import { createClient,RedisClientType } from "redis";
-import {EventId, SeatCounter, EventName,UserId, HoldSeatExpiration, HOLD_SEAT_EXPIRATION_DEFAULT} from "./types"
+import {EventId, SeatCounter, EventName,UserId, HoldSeatExpiration, SeatNumber} from "./types"
 import {randomUUID} from "crypto"
 import {env} from "./env"
 
@@ -43,7 +43,7 @@ export async function createReservationsClient(props: {redisClientInstance?: Red
         };
     }
 
-    const holdSeat = async (eventId: EventId, userId: UserId, seatIndex: number, holdSeatExpiration?:HoldSeatExpiration|undefined) => {
+    const holdSeat = async (eventId: EventId, userId: UserId, seatIndex: SeatNumber, holdSeatExpiration?:HoldSeatExpiration|undefined) => {
         holdSeatExpiration = HoldSeatExpiration.parse(holdSeatExpiration);
         const seatKey = seatIndex.toString()
         const hashKey = eventId+":seats"
@@ -70,7 +70,7 @@ export async function createReservationsClient(props: {redisClientInstance?: Red
             throw new Error("Seat is already held")
     }
 
-    const refreshHoldSeat = async (eventId: EventId, userId: UserId, seatIndex: number, holdSeatExpiration?:HoldSeatExpiration|undefined) => {
+    const refreshHoldSeat = async (eventId: EventId, userId: UserId, seatIndex: SeatNumber, holdSeatExpiration?:HoldSeatExpiration|undefined) => {
         holdSeatExpiration = HoldSeatExpiration.parse(holdSeatExpiration);
         const seatKey = seatIndex.toString()
         const hashKey = eventId+":seats"
@@ -85,7 +85,7 @@ export async function createReservationsClient(props: {redisClientInstance?: Red
         }
     }
 
-    const reserveSeat = async (eventId: EventId, userId: UserId, seatIndex:number) => {
+    const reserveSeat = async (eventId: EventId, userId: UserId, seatIndex:SeatNumber) => {
         const seatKey = seatIndex.toString()
         const hashKey = eventId+":seats"
         const holdSeat = await redisClient.hGet(hashKey, seatKey);
@@ -97,20 +97,20 @@ export async function createReservationsClient(props: {redisClientInstance?: Red
 
     }
 
-    const getEventSeat = async (eventId: EventId, seatIndex:number) => {
+    const getEventSeat = async (eventId: EventId, seatIndex:SeatNumber) => {
         const seatKey = seatIndex.toString()
         const hashKey = eventId+":seats"
         const userId = await redisClient.hGet(hashKey, seatKey);
         return userId as UserId;// I could have parsed this for better correctness, but I choose an unsafe cast for performance reasons
     }
 
-    const getAvailableSeats = async (eventId: EventId) => {
+    const getAvailableSeats = async (eventId: EventId): Promise<SeatNumber[]> => {
         const totalSeatsString = await redisClient.hGet(eventId, "totalSeats");
         const totalSeats = SeatCounter.parse(parseInt(totalSeatsString||""));
         const hashKey = eventId+":seats"
         const seatsNotAvailable = await redisClient.hKeys(hashKey);
         const potentialAvailableSeatch = Array.from({"length": totalSeats}, (_,i) => `${i+1}`)
-        return potentialAvailableSeatch.filter(seat => !seatsNotAvailable.includes(seat))
+        return potentialAvailableSeatch.filter(seat => !seatsNotAvailable.includes(seat)).map(seat => SeatNumber.parse(seat));
         
     }
 

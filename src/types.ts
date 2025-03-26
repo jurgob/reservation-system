@@ -4,6 +4,7 @@ export const EventId = z.custom<`EVT-${ string }`>( data => z.string().startsWit
 export const UserId = z.custom<`USR-${ string }`>( data => z.string().startsWith("USR-").safeParse( data ).success )
 export const SeatCounter = z.number().int().positive().min(10).max(1000).brand<"SeatNumber">();
 export const EventName = z.string().min(1).max(100).brand<"EventName">();
+export const SeatNumber = z.coerce.number().int().positive().brand<"SeatNumber">()
 const HOLD_SEAT_EXPIRATION_DEFAULT_INTERNAL = 60;
 export const HoldSeatExpiration = z.number().int().positive().min(1).max(HOLD_SEAT_EXPIRATION_DEFAULT_INTERNAL).default(HOLD_SEAT_EXPIRATION_DEFAULT_INTERNAL).brand<"HoldSeatExpiration">();
 
@@ -31,3 +32,4 @@ export type EventName = z.infer<typeof EventName>;
  */
 export type HoldSeatExpiration = z.infer<typeof HoldSeatExpiration>;
 export const HOLD_SEAT_EXPIRATION_DEFAULT = HOLD_SEAT_EXPIRATION_DEFAULT_INTERNAL as HoldSeatExpiration;
+export type SeatNumber = z.infer<typeof SeatNumber>;

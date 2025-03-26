@@ -114,7 +114,7 @@ export async function createApp(){
                 return {
                     status: 200,
                     body: {
-                        availableSeats: [1, 2, 3, 4, 5],
+                        availableSeats: availableSeats,
                     },
                 };
             }catch(e){

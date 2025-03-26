@@ -1,6 +1,6 @@
 import { initContract } from "@ts-rest/core";
 import {z} from "zod";
-import { EventId, SeatCounter, UserId,EventName, HoldSeatExpiration } from "./types";
+import { EventId, SeatCounter, UserId,EventName, HoldSeatExpiration,SeatNumber } from "./types";
 const c = initContract();
 const ForbiddenErrorResponse = z.object({ error: z.string() });  
 const WrongRequestErrorResponse = z.object({ issues: z.array(z.object({})),name: z.string() });  
@@ -41,7 +41,7 @@ export const contract = c.router({
         eventId: EventId 
     }),
     body: z.object({ 
-      seatNumber: z.number(), 
+      seatNumber: SeatNumber, 
       userId: UserId,
       expireIn: HoldSeatExpiration,
       refresh: z.boolean().optional().default(false)
@@ -63,7 +63,7 @@ export const contract = c.router({
       eventId: EventId 
     }),
     body: z.object({ 
-      seatNumber: z.number(), 
+      seatNumber: SeatNumber, 
       userId: UserId,
     }),
     responses: { 
@@ -83,7 +83,7 @@ export const contract = c.router({
       }),
       responses: { 
           200: z.object({ 
-              availableSeats: z.array(z.number())
+              availableSeats: z.array(SeatNumber)
           }),
           400: WrongRequestErrorResponse,
           403: ForbiddenErrorResponse 
