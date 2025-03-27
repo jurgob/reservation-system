@@ -1,6 +1,6 @@
 import {createClient, ApiClient} from './client';
 import {createApp,ApiServer} from './app';
-import { it, describe,expect,beforeAll, afterAll } from 'vitest';
+import { it, describe,expect,beforeAll, afterAll,assert } from 'vitest';
 import { AddressInfo } from 'node:net';
 import { EventId } from './types';
 import { createUserId } from './reservations_client';
@@ -68,14 +68,43 @@ describe('APP http endpoint', () => {
         }
         expect(newEvent.status).toBe(201);
     })
-    
+
+    it('should not create an event with less then 10 sits', async () => {
+        const totalSeats = 8;
+        const name = 'Ibiza Beach Party';
+        const newEvent = await client.createEvent({body:{
+            totalSeats, name
+        }});
+        
+        
+        const expectedErrorResponse = {
+            "issues": [
+              {
+                "code": "too_small",
+                "exact": false,
+                "inclusive": true,
+                "message": "Number must be greater than or equal to 10",
+                "minimum": 10,
+                "path": [
+                  "totalSeats",
+                ],
+                "type": "number",
+              },
+            ],
+            "name": "ZodError",
+          }
+        
+        assert(newEvent.status === 400, `Expected status code to be 400, got ${newEvent.status}`);
+        expect(newEvent.body?.name).toBe(expectedErrorResponse.name);
+        expect(newEvent?.body).toStrictEqual(expectedErrorResponse);
+    })
+
     it('hold a seat on a non-existing event should return 403', async () => {
         const totalSeats = 10;
         const name = 'Ibiza Beach Party';
         const eventId = `EVT-not-existing`;
         const userId = createUserId();
         const holdSeatResponse = await client.holdSeat({params:{eventId},body:{seatNumber:1,userId}});
-        
         expect(holdSeatResponse.status).toBe(403);
     })
 
